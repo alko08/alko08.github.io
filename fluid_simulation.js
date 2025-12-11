@@ -413,6 +413,9 @@ function simulation() {
             // If paused display and skip simulation steps
             if (window.PAUSE_SIM) {
                 display();
+                if (window.SHOW_ARROWS) {
+                    renderArrows();
+                }
                 simulationLoop = requestAnimationFrame(simulate);
                 return;
             }
