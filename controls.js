@@ -131,6 +131,7 @@ function resetVariables() {
     setValue('DT');
     document.getElementById('arrows-checkbox').checked = window.SHOW_ARROWS;
     document.getElementById('random-color-checkbox').checked = window.RANDOM_COLOR;
+    document.getElementById("SplatColorChooser").style.visibility = window.RANDOM_COLOR ? "hidden" : "visible";
     splatRed = document.getElementById("SPLAT_COLOR_RED_input");
     splatRed.value = Math.round(window["SPLAT_COLOR"][0]);
     splatGreen = document.getElementById("SPLAT_COLOR_GREEN_input");
