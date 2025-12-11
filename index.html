@@ -1,8 +1,232 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <!-- index.html
+    Created by Alexander Koppel for CS 175 Final
+    
+    Contains all nessecary html code to run a basic fluid simulation with WebGL
+     -->
+    <meta charset="utf-8">
+    <title>WebGL Fluid Simulation</title>
+    <link rel="icon" type="images/x-icon" href="/images/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        html, body {
+            margin: 0;
+            background: #101015;
+            color: white;
+            font-family: sans-serif;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        #fluidCanvas {
+            border: 2px solid #333;
+            background: black;
+            width: 512px;
+            height: 512px;
+        }
+
+        #controls {
+            background: #181820;
+            padding: 15px;
+            border: 2px solid #333;
+            width: 220px;
+            border-radius: 6px;
+        }
+
+        .controlGroup {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .controlGroup label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .controlGroup input[type="range"] {
+            width: 100%;
+        }
+
+        .controlGroup button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 8px;
+            background: #303040;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .controlRow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .controlRow input[type="number"] {
+            width: 66px;
+            background: #111;
+            border: 1px solid #444;
+            color: white;
+            padding: 2px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
 <body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
-<img src="dog.JPG" alt="Dog">
+    <h2>WebGL Fluid Simulation</h2>
+
+    <div id="container">
+        <!-- Controls that affect important parts of simulation -->
+        <div id="controls">
+            <label>Preformance Controls</label>
+            <hr>
+
+            <div class="controlGroup">
+                <label>Simulation Resolution</label>
+                <div class="controlRow">
+                    <input id="SIM_RES_slider" type="range" min="64" max="1024" step="64">
+                    <input id="SIM_RES_input" type="number" min="64" max="1024" step="64">
+                </div>
+            </div>
+
+            <div class="controlGroup">
+                <label>Pressure Iterations</label>
+                <div class="controlRow">
+                    <input id="PRESSURE_ITER_slider" type="range" min="1" max="200" step="1">
+                    <input id="PRESSURE_ITER_input" type="number" min="1" max="200" step="1">
+                </div>
+            </div>
+
+            <div class="controlGroup">
+                <label>
+                    Show Arrows
+                    <input id="arrows-checkbox" type="checkbox">
+                </label>
+
+                <label>Arrow Resolution</label>
+                <div class="controlRow">
+                    <input id="ARROW_RES_slider" type="range" min="1" max="100" step="1">
+                    <input id="ARROW_RES_input" type="number" min="1" max="100" step="1">
+                </div>
+            </div>
+
+            <div class="controlGroup">
+                <label>
+                    Pause Simulation
+                    <input id="pause-checkbox" type="checkbox">
+                </label>
+            </div>
+
+            <div class="controlGroup">
+                <button id="RandomSplatsButton">Random Splats</button>
+                <button id="resetButton">Reset Simulation</button>
+                <button id="resetVarButton">Reset Page</button>
+            </div>
+        </div>
+
+        <!-- Main Canvas for Simulation!!! -->
+        <canvas id="fluidCanvas"></canvas>
+
+        <!-- Controls that are more minor for simulation -->
+        <div id="controls">
+            <label>Simulation Controls</label>
+            <hr>
+
+            <div class="controlGroup">
+                <label>Viscosity</label>
+                <div class="controlRow">
+                    <input id="VISCOSITY_slider" type="range" min="0" max="0.2" step="0.0001">
+                    <input id="VISCOSITY_input" type="number" min="0" max="0.2" step="0.0001">
+                </div>
+                <label>Damping</label>
+                <div class="controlRow">
+                    <input id="DAMPING_slider" type="range" min="0.98" max="1" step="0.00001">
+                    <input id="DAMPING_input" type="number" min="0.98" max="1" step="0.00001">
+                </div>
+                <label>Backtrace Time</label>
+                <div class="controlRow">
+                    <input id="DT_slider" type="range" min="0.0001" max="0.1" step="0.0001">
+                    <input id="DT_input" type="number" min="0.0001" max="0.1" step="0.0001">
+                </div>
+            </div>
+
+            <div class="controlGroup">
+                <label>Soft Boundary Size</label>
+                <div class="controlRow">
+                    <input id="SOFT_BOUNDARY_SIZE_slider" type="range" min="0" max="0.5" step="0.01">
+                    <input id="SOFT_BOUNDARY_SIZE_input" type="number" min="0" max="0.5" step="0.01">
+                </div>
+                <label>Boundary Strength</label>
+                <div class="controlRow">
+                    <input id="BOUNDARY_STRENGTH_slider" type="range" min="0" max="2" step="0.01">
+                    <input id="BOUNDARY_STRENGTH_input" type="number" min="0" max="2" step="0.01">
+                </div>
+            </div>
+
+            <div class="controlGroup">
+                <label>Splat Radius</label>
+                <div class="controlRow">
+                    <input id="SPLAT_RADIUS_slider" type="range" min="0.005" max="0.12" step="0.005">
+                    <input id="SPLAT_RADIUS_input" type="number" min="0.005" max="0.12" step="0.005">
+                </div>
+                <label>Splat Force</label>
+                <div class="controlRow">
+                    <input id="SPLAT_FORCE_slider" type="range" min="1" max="1000" step="1">
+                    <input id="SPLAT_FORCE_input" type="number" min="1" max="1000" step="1">
+                </div>
+            </div>
+
+            <div class="controlGroup">
+                <label>Splat Color Calculation Method</label>
+                <div class="controlRow">
+                    <input id="COLOR_VALUE_slider" type="range" min="0" max="3" step="1">
+                    <input id="COLOR_VALUE_input" type="number" min="0" max="3" step="1">
+                </div>
+                <div class="controlRow">
+                    <label>
+                        Random Splat Color
+                        <input id="random-color-checkbox" type="checkbox" checked="true">
+                    </label>
+                </div>
+                
+                <div class="controlRow" id="SplatColorChooser">
+                    <label>
+                        R:
+                        <input id="SPLAT_COLOR_RED_input" type="number" min="0" max="256" step="1">
+                    </label>
+                    <label>
+                        G:
+                        <input id="SPLAT_COLOR_GREEN_input" type="number" min="0" max="256" step="1">
+                    </label>
+                    <label>
+                        B:
+                        <input id="SPLAT_COLOR_BLUE_input" type="number" min="0" max="256" step="1">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="fluid_simulation.js"></script>
+    <script src="controls.js"></script>
+
 </body>
 </html>
