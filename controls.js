@@ -76,13 +76,19 @@ bindPair('ARROW_RES', false);
 bindPair('COLOR_VALUE', false);
 bindPair('DT');
 
+function restartSimulation() {
+    if (window.restartSimulation) {
+        window.restartSimulation();
+    }
+}
+
 // Reset button
-document.getElementById('resetButton').addEventListener('click', window.restartSimulation);
+document.getElementById('resetButton').addEventListener('click', restartSimulation);
 
 // Sim Resolution requires reset
 bindPair('SIM_RES', false);
-document.getElementById('SIM_RES_slider').addEventListener('change', window.restartSimulation);
-document.getElementById('SIM_RES_input').addEventListener('change', window.restartSimulation);
+document.getElementById('SIM_RES_slider').addEventListener('change', restartSimulation);
+document.getElementById('SIM_RES_input').addEventListener('change', restartSimulation);
 
 // Arrow checkbox
 const arrowsCheckbox = document.getElementById("arrows-checkbox");
@@ -134,7 +140,7 @@ function resetVariables() {
 }
 
 document.getElementById('resetVarButton').addEventListener('click', resetVariables);
-document.getElementById('resetVarButton').addEventListener('click', window.restartSimulation);
+document.getElementById('resetVarButton').addEventListener('click', restartSimulation);
 
 function spawnSplat() {
     window.SPAWN_SPLAT = true;
